@@ -2,14 +2,19 @@
 from flask import Flask, jsonify, request
 from database import db
 from models import User, Coach, Questionnaire, QuestionnaireData, UserAvailability, CoachAvailability, Appointment
-from flask_cors import CORS
 
 app = Flask(__name__)
-CORS(app)
+app.config.from_object('config')  # Load app configuration
 
-app = Flask(__name__)
-app.config.from_object('config')
 db.init_app(app)
+
+# Set CORS headers
+@app.after_request
+def after_request(response):
+    response.headers.add('Access-Control-Allow-Origin', '*')
+    response.headers.add('Access-Control-Allow-Headers', 'Content-Type,Authorization')
+    response.headers.add('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS')
+    return response
 
 # User routes
 @app.route('/api/users', methods=['POST'])
