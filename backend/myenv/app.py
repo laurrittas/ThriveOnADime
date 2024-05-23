@@ -1,10 +1,17 @@
+# app.py
 from flask import Flask
-from flask_sqlalchemy import SQLAlchemy
-from flask_marshmallow import Marshmallow
+from database import db, create_all
 
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.db'
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app.config.from_object('config')  # Import configuration from config.py
 
-db = SQLAlchemy(app)
-ma = Marshmallow(app)
+db.init_app(app)
+
+@app.route('/')
+def hello():
+    return 'Hello, World!'
+
+if __name__ == '__main__':
+    with app.app_context():
+        create_all()
+    app.run(debug=True)
