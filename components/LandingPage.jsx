@@ -1,61 +1,41 @@
 import React, { useState } from 'react';
-import { StyleSheet, Text, TextInput, TouchableOpacity, View, Alert } from 'react-native';
+import { StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import axios from 'axios';
 
-const API_BASE_URL = 'http://localhost:5000/api/users'; // Replace with your local IP address
-
-// Axios request interceptor
-axios.interceptors.request.use(request => {
-  console.log('Starting Request', request);
-  return request;
-});
-
-// Axios response interceptor
-axios.interceptors.response.use(response => {
-  console.log('Response:', response);
-  return response;
-}, error => {
-  console.error('Response Error:', error);
-  return Promise.reject(error);
-});
+const API_BASE_URL = 'http://localhost:5000/api'; // Replace with your backend URL
 
 const LandingPage = ({ navigation }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
   const handleLogin = async () => {
-    if (email === '' || password === '') {
-      Alert.alert('Error', 'Please fill in both email and password');
-      return;
-    }
-
     try {
-      const userData = { email, password };
+      const userData = {
+        email,
+        password,
+      };
       const response = await axios.post(`${API_BASE_URL}/login`, userData);
       console.log('Login successful:', response.data);
       // Navigate to the HomeScreen after successful login
       navigation.navigate('Home');
     } catch (error) {
       console.error('Error logging in:', error);
-      Alert.alert('Error', `Login failed: ${error.response?.data?.message || error.message}`);
     }
   };
 
   const handleSignUp = async () => {
-    if (email === '' || password === '') {
-      Alert.alert('Error', 'Please fill in both email and password');
-      return;
-    }
-
     try {
-      const userData = { email, password };
-      const response = await axios.post(`${API_BASE_URL}/users`, userData);
+      const userData = {
+        email,
+        password,
+        // Add any additional sign-up fields here
+      };
+      const response = await axios.post(`${API_BASE_URL}/signup`, userData);
       console.log('Sign up successful:', response.data);
       // Navigate to the HomeScreen after successful sign-up
       navigation.navigate('Home');
     } catch (error) {
       console.error('Error signing up:', error);
-      Alert.alert('Error', `Sign up failed: ${error.response?.data?.message || error.message}`);
     }
   };
 
@@ -65,16 +45,13 @@ const LandingPage = ({ navigation }) => {
       <TextInput
         style={styles.input}
         placeholder="Email"
-        placeholderTextColor="#999"
         value={email}
         onChangeText={setEmail}
         autoCapitalize="none"
-        keyboardType="email-address"
       />
       <TextInput
         style={styles.input}
         placeholder="Password"
-        placeholderTextColor="#999"
         value={password}
         onChangeText={setPassword}
         secureTextEntry
@@ -82,7 +59,7 @@ const LandingPage = ({ navigation }) => {
       <TouchableOpacity style={styles.button} onPress={handleLogin}>
         <Text style={styles.buttonText}>Login</Text>
       </TouchableOpacity>
-      <TouchableOpacity style={[styles.button, styles.signUpButton]} onPress={handleSignUp}>
+      <TouchableOpacity style={styles.button} onPress={handleSignUp}>
         <Text style={styles.buttonText}>Sign Up</Text>
       </TouchableOpacity>
     </View>
@@ -119,9 +96,6 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     marginTop: 20,
     width: '100%',
-  },
-  signUpButton: {
-    backgroundColor: '#6A1B9A',
   },
   buttonText: {
     color: '#FFFFFF',
