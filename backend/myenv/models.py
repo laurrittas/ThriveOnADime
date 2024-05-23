@@ -25,15 +25,6 @@ class Coach(db.Model):
     created_at = db.Column(db.DateTime, server_default=db.func.now())
     updated_at = db.Column(db.DateTime, server_default=db.func.now(), onupdate=db.func.now())
 
-class PlatformUsage(db.Model):
-    __tablename__ = 'platform_usage'
-    id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
-    user = db.relationship('User', backref='platform_usage')
-    last_login = db.Column(db.DateTime)
-    session_duration = db.Column(db.Integer)
-    created_at = db.Column(db.DateTime, server_default=db.func.now())
-    updated_at = db.Column(db.DateTime, server_default=db.func.now(), onupdate=db.func.now())
 
 class Questionnaire(db.Model):
     __tablename__ = 'questionnaires'
