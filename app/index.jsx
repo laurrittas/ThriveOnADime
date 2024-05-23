@@ -15,6 +15,7 @@ import ResultScreen from '../components/ResultScreen';
 import AICoachScreen from '../components/AiCoachScreen';
 import ForumScreen from '../components/ForumScreen';
 import ThreadScreen from '../components/ThreadScreen';
+// import MessageScreen from '../components/MessageScreen';
 
 
 
@@ -36,6 +37,7 @@ const Index = () => {
       <Stack.Screen name="AICoach" component={AICoachScreen} />
       <Stack.Screen name="Forum" component={ForumScreen} />
       <Stack.Screen name="Thread" component={ThreadScreen} /> */}
+      {/* <Stack.Screen name="Messages" component={MessageScreen} /> */}
     </Stack.Navigator>
   )
 };
