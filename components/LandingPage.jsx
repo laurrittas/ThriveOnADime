@@ -1,36 +1,43 @@
 import React, { useState } from 'react';
 import { StyleSheet, Text, TextInput, TouchableOpacity, View, Alert } from 'react-native';
+import axios from 'axios';
+
+const API_BASE_URL = 'http://localhost:5000/api/users'; // Replace with your local IP address
+
+// Axios request interceptor
+axios.interceptors.request.use(request => {
+  console.log('Starting Request', request);
+  return request;
+});
+
+// Axios response interceptor
+axios.interceptors.response.use(response => {
+  console.log('Response:', response);
+  return response;
+}, error => {
+  console.error('Response Error:', error);
+  return Promise.reject(error);
+});
 
 const LandingPage = ({ navigation }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
-  const handleSignIn = async () => {
+  const handleLogin = async () => {
     if (email === '' || password === '') {
       Alert.alert('Error', 'Please fill in both email and password');
       return;
     }
 
     try {
-      const response = await fetch('https://your-backend-url.com/api/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ email, password }),
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        // Handle successful login
-        navigation.replace('Home');
-      } else {
-        const errorData = await response.json();
-        Alert.alert('Error', `Login failed: ${errorData.message}`);
-      }
+      const userData = { email, password };
+      const response = await axios.post(`${API_BASE_URL}/login`, userData);
+      console.log('Login successful:', response.data);
+      // Navigate to the HomeScreen after successful login
+      navigation.navigate('Home');
     } catch (error) {
-      Alert.alert('Error', `An error occurred: ${error.message}`);
-      console.error('Login error:', error);
+      console.error('Error logging in:', error);
+      Alert.alert('Error', `Login failed: ${error.response?.data?.message || error.message}`);
     }
   };
 
@@ -41,40 +48,28 @@ const LandingPage = ({ navigation }) => {
     }
 
     try {
-      const response = await fetch('https://your-backend-url.com/api/register', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ email, password }),
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        // Handle successful sign up
-        Alert.alert('Success', 'Account created successfully');
-        navigation.replace('Home');
-      } else {
-        const errorData = await response.json();
-        Alert.alert('Error', `Sign up failed: ${errorData.message}`);
-      }
+      const userData = { email, password };
+      const response = await axios.post(`${API_BASE_URL}/users`, userData);
+      console.log('Sign up successful:', response.data);
+      // Navigate to the HomeScreen after successful sign-up
+      navigation.navigate('Home');
     } catch (error) {
-      Alert.alert('Error', `An error occurred: ${error.message}`);
-      console.error('Sign up error:', error);
+      console.error('Error signing up:', error);
+      Alert.alert('Error', `Sign up failed: ${error.response?.data?.message || error.message}`);
     }
   };
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Welcome to Thrive On A Dime</Text>
+      <Text style={styles.title}>THRIVE ON A DIME</Text>
       <TextInput
         style={styles.input}
         placeholder="Email"
         placeholderTextColor="#999"
         value={email}
         onChangeText={setEmail}
-        keyboardType="email-address"
         autoCapitalize="none"
+        keyboardType="email-address"
       />
       <TextInput
         style={styles.input}
@@ -84,8 +79,8 @@ const LandingPage = ({ navigation }) => {
         onChangeText={setPassword}
         secureTextEntry
       />
-      <TouchableOpacity style={styles.button} onPress={handleSignIn}>
-        <Text style={styles.buttonText}>Sign In</Text>
+      <TouchableOpacity style={styles.button} onPress={handleLogin}>
+        <Text style={styles.buttonText}>Login</Text>
       </TouchableOpacity>
       <TouchableOpacity style={[styles.button, styles.signUpButton]} onPress={handleSignUp}>
         <Text style={styles.buttonText}>Sign Up</Text>
@@ -98,9 +93,9 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#000000',
-    justifyContent: 'center',
     alignItems: 'center',
-    padding: 16,
+    justifyContent: 'center',
+    padding: 20,
   },
   title: {
     fontSize: 24,
@@ -110,27 +105,29 @@ const styles = StyleSheet.create({
   },
   input: {
     width: '100%',
-    backgroundColor: '#1e1e1e',
-    color: '#FFFFFF',
-    padding: 16,
+    height: 40,
+    borderColor: 'gray',
+    borderWidth: 1,
     marginVertical: 10,
-    borderRadius: 8,
-    fontSize: 16,
+    paddingHorizontal: 10,
+    color: '#FFFFFF',
   },
   button: {
-    backgroundColor: '#FFFFFF',
-    paddingVertical: 16,
-    paddingHorizontal: 24,
+    backgroundColor: '#9B51E0',
+    paddingVertical: 12,
+    paddingHorizontal: 20,
     borderRadius: 8,
-    marginTop: 10,
+    marginTop: 20,
+    width: '100%',
   },
   signUpButton: {
-    backgroundColor: '#999999',
+    backgroundColor: '#6A1B9A',
   },
   buttonText: {
-    fontSize: 18,
+    color: '#FFFFFF',
+    fontSize: 16,
     fontWeight: 'bold',
-    color: '#000000',
+    textAlign: 'center',
   },
 });
 
