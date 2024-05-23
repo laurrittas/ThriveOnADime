@@ -1,17 +1,29 @@
 # app.py
-from flask import Flask
-from database import db, create_all
+from flask import Flask, jsonify, request
+from database import db
+from models import User, Coach, Questionnaire, QuestionnaireData, UserAvailability, CoachAvailability, Appointment
 
 app = Flask(__name__)
-app.config.from_object('config')  # Import configuration from config.py
-
+app.config.from_object('config')
 db.init_app(app)
 
-@app.route('/')
-def hello():
-    return 'Hello, World!'
+# User routes
+@app.route('/api/users', methods=['POST'])
+def create_user():
+    data = request.get_json()
+    user = User(name=data['name'], email=data['email'], password=data['password'])
+    db.session.add(user)
+    db.session.commit()
+    return jsonify({'message': 'User created successfully'}), 201
+
+@app.route('/api/users/<int:user_id>', methods=['GET'])
+def get_user(user_id):
+    user = User.query.get(user_id)
+    if user:
+        return jsonify(user.to_dict()), 200
+    return jsonify({'message': 'User not found'}), 404
 
 if __name__ == '__main__':
     with app.app_context():
-        create_all()
+        db.create_all()
     app.run(debug=True)
