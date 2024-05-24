@@ -4,8 +4,7 @@ from database import db
 from models import User, Coach, Questionnaire, QuestionnaireData, UserAvailability, CoachAvailability, Appointment
 
 app = Flask(__name__)
-app.config.from_object('config')  # Load app configuration
-
+app.config.from_object('config')
 db.init_app(app)
 
 # Set CORS headers
@@ -20,7 +19,13 @@ def after_request(response):
 @app.route('/api/users', methods=['POST'])
 def create_user():
     data = request.get_json()
-    user = User(name=data['name'], email=data['email'], password=data['password'])
+    email = data['email']
+    existing_user = User.query.filter_by(email=email).first()
+
+    if existing_user:
+        return jsonify({'message': 'Email already exists'}), 400
+
+    user = User(name=data['name'], email=email, password=data['password'])
     db.session.add(user)
     db.session.commit()
     return jsonify({'message': 'User created successfully'}), 201
