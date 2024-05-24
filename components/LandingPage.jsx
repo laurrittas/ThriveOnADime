@@ -14,7 +14,7 @@ const LandingPage = ({ navigation }) => {
         email,
         password,
       };
-      const response = await axios.post(`${API_BASE_URL}/login`, userData);
+      const response = await axios.post(`${API_BASE_URL}/users`, userData);
       console.log('Login successful:', response.data);
       // Navigate to the HomeScreen after successful login
       navigation.navigate('Home');
