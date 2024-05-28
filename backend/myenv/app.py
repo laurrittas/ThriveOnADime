@@ -1,4 +1,5 @@
 from flask import Flask, jsonify, request
+from werkzeug.security import check_password_hash
 from database import db
 from models import User, Coach, Questionnaire, QuestionnaireData, UserAvailability, CoachAvailability, Appointment
 from flask_migrate import Migrate
@@ -7,7 +8,6 @@ app = Flask(__name__)
 app.config.from_object('config')
 migrate = Migrate(app, db)
 db.init_app(app)
-
 
 # User routes
 @app.route('/api/users', methods=['POST'])
@@ -33,7 +33,19 @@ def create_user():
 
     return jsonify({'message': 'User created successfully'}), 201
 
-@app.route('/api/getusers', methods=['GET'])
+@app.route('/api/login', methods=['POST'])
+def login():
+    data = request.get_json()
+    email = data.get('email')
+    password = data.get('password')
+
+    user = User.query.filter_by(email=email).first()
+    if user and check_password_hash(user.password, password):
+        return jsonify({'success': True, 'message': 'Login successful'}), 200
+    else:
+        return jsonify({'success': False, 'message': 'Invalid email or password'}), 401
+
+@app.route('/api/getusers/<int:user_id>', methods=['GET'])
 def get_user(user_id):
     print(f"Fetching user with ID: {user_id}")  # Debug: Print the user ID
     user = User.query.get(user_id)
