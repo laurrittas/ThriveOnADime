@@ -5,22 +5,23 @@ import axios from 'axios';
 const API_BASE_URL = 'http://localhost:5000/api'; // Replace with your backend URL
 
 const LandingPage = ({ navigation }) => {
+  const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
   const handleLogin = async () => {
     try {
       const userData = {
-        email,
+        username,
         password,
       };
-      const response = await axios.post(`${API_BASE_URL}/login`, userData);
-      if (response.data.success) {
+      const response = await axios.post(`${API_BASE_URL}/account/signin`, userData);
+      if (response.status === 200) {
         console.log('Login successful:', response.data);
         // Navigate to the HomeScreen after successful login
         navigation.navigate('Home');
       } else {
-        console.error('Login failed:', response.data.message);
+        console.error('Login failed:', response.data.error);
       }
     } catch (error) {
       console.error('Error logging in:', error);
@@ -30,14 +31,18 @@ const LandingPage = ({ navigation }) => {
   const handleSignUp = async () => {
     try {
       const userData = {
+        username,
         email,
         password,
-        // Add any additional sign-up fields here
       };
-      const response = await axios.post(`${API_BASE_URL}/users`, userData);
-      console.log('Sign up successful:', response.data);
-      // Navigate to the HomeScreen after successful sign-up
-      navigation.navigate('Home');
+      const response = await axios.post(`${API_BASE_URL}/account/create`, userData);
+      if (response.status === 201) {
+        console.log('Sign up successful:', response.data);
+        // Navigate to the HomeScreen after successful sign-up
+        navigation.navigate('Home');
+      } else {
+        console.error('Sign up failed:', response.data.error);
+      }
     } catch (error) {
       console.error('Error signing up:', error);
     }
@@ -46,6 +51,13 @@ const LandingPage = ({ navigation }) => {
   return (
     <View style={styles.container}>
       <Text style={styles.title}>THRIVE ON A DIME</Text>
+      <TextInput
+        style={styles.input}
+        placeholder="Username"
+        value={username}
+        onChangeText={setUsername}
+        autoCapitalize="none"
+      />
       <TextInput
         style={styles.input}
         placeholder="Email"
