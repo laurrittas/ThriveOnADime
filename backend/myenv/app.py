@@ -6,6 +6,7 @@ from flask_migrate import Migrate
 
 app = Flask(__name__)
 app.config.from_object('config')
+app.debug = True
 app.secret_key = 'your_secret_key'  # replace with your secret key
 migrate = Migrate(app, db)
 db.init_app(app)
@@ -47,6 +48,33 @@ def create_user():
     else:
         return jsonify({"error": "Username, email, and password are required"}), 400
 
+# Update
+@app.route('/api/user/<int:user_id>', methods=['PATCH'])
+def update_user(user_id):
+    user = User.query.get(user_id)
+    if user:
+        data = request.get_json()
+        user.username = data.get('username', user.username)
+        user.email = data.get('email', user.email)
+        if 'password' in data:
+            user.password = generate_password_hash(data['password'])
+        db.session.commit()
+        return jsonify(user.to_dict()), 200
+    else:
+        return jsonify({"error": "User not found"}), 404
+    
+# Delete
+@app.route('/api/user/<int:user_id>', methods=['DELETE'])
+def delete_user(user_id):
+    user = User.query.get(user_id)
+    if user:
+        db.session.delete(user)
+        db.session.commit()
+        return jsonify({"message": "User deleted"}), 200
+    else:
+        return jsonify({"error": "User not found"}), 404
+
+
 @app.route('/api/account/signin', methods=['POST'])
 def user_signin():
     data = request.get_json()
@@ -62,6 +90,57 @@ def user_signin():
             return jsonify({"error": "Invalid username or password"}), 401
     else:
         return jsonify({"error": "Username and password are required"}), 400
+
+
+@app.route('/api/questionnaire/<int:user_id>', methods=['GET'])
+def get_questionnaire(user_id):
+    questionnaire = Questionnaire.query.filter(Questionnaire.user_id == user_id).first()
+    if questionnaire:
+        return jsonify(questionnaire.to_dict()), 200
+    else:
+        return jsonify({"error": "Questionnaire not found for this user"}), 404
+
+@app.route('/api/questionnaire', methods=['POST'])
+def create_questionnaire():
+    data = request.get_json()
+    user_id = data.get('user_id')
+    questionnaire_type = data.get('questionnaire_type')
+
+    if user_id and questionnaire_type:
+        questionnaire = Questionnaire(user_id=user_id, questionnaire_type=questionnaire_type)
+        db.session.add(questionnaire)
+        db.session.commit()
+        return jsonify(questionnaire.to_dict()), 201
+    else:
+        return jsonify({"error": "User ID and questionnaire type are required"}), 400
+
+@app.route('/api/questionnairedata/<int:questionnaire_id>', methods=['GET'])
+def get_questionnaire_data(questionnaire_id):
+    questionnaire_data = QuestionnaireData.query.filter(QuestionnaireData.questionnaire_id == questionnaire_id).all()
+    if questionnaire_data:
+        return jsonify([data.to_dict() for data in questionnaire_data]), 200
+    else:
+        return jsonify({"error": "No data found for this questionnaire"}), 404
+
+@app.route('/api/questionnairedata', methods=['POST'])
+def create_questionnaire_data():
+    data = request.get_json()
+    questionnaire_id = data.get('questionnaire_id')
+    question_text = data.get('question_text')
+    answer = data.get('answer')
+    score = data.get('score')
+    order = data.get('order')
+
+    if questionnaire_id and question_text and answer and order and score is not None:
+        questionnaire_data = QuestionnaireData(questionnaire_id=questionnaire_id, question_text=question_text, answer=answer, score=score, order=order)
+        db.session.add(questionnaire_data)
+        db.session.commit()
+        return jsonify(questionnaire_data.to_dict()), 201
+    else:
+        return jsonify({"error": "Questionnaire ID, question text, answer, score, and order are required"}), 400
+    
+
+
 
 if __name__ == '__main__':
     with app.app_context():
