@@ -14,10 +14,14 @@ const LandingPage = ({ navigation }) => {
         email,
         password,
       };
-      const response = await axios.post(`${API_BASE_URL}/users`, userData);
-      console.log('Login successful:', response.data);
-      // Navigate to the HomeScreen after successful login
-      navigation.navigate('Home');
+      const response = await axios.post(`${API_BASE_URL}/login`, userData);
+      if (response.data.success) {
+        console.log('Login successful:', response.data);
+        // Navigate to the HomeScreen after successful login
+        navigation.navigate('Home');
+      } else {
+        console.error('Login failed:', response.data.message);
+      }
     } catch (error) {
       console.error('Error logging in:', error);
     }
@@ -30,7 +34,7 @@ const LandingPage = ({ navigation }) => {
         password,
         // Add any additional sign-up fields here
       };
-      const response = await axios.post(`${API_BASE_URL}/signup`, userData);
+      const response = await axios.post(`${API_BASE_URL}/users`, userData);
       console.log('Sign up successful:', response.data);
       // Navigate to the HomeScreen after successful sign-up
       navigation.navigate('Home');
