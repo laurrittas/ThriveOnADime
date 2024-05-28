@@ -62,6 +62,14 @@ class Questionnaire(db.Model):
     def __repr__(self):
         return f"<Questionnaire {self.questionnaire_type}>"
 
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'user_id': self.user_id,
+            'questionnaire_type': self.questionnaire_type,
+            'created_at': self.created_at.isoformat(),
+            'updated_at': self.updated_at.isoformat()
+        }
 class QuestionnaireData(db.Model):
     __tablename__ = 'questionnaire_data'
     id = db.Column(db.Integer, primary_key=True)
@@ -69,12 +77,16 @@ class QuestionnaireData(db.Model):
     questionnaire = db.relationship('Questionnaire', backref=backref('questionnaire_data', lazy='dynamic'))
     question_text = db.Column(db.Text, nullable=False)
     answer = db.Column(db.Text, nullable=True)
+    score = db.Column(db.Integer, nullable=True)
     order = db.Column(db.Integer, nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
 
     def __repr__(self):
         return f"<QuestionnaireData {self.question_text[:20]}...>"
+    
+    def to_dict(self):
+        return {c.name: getattr(self, c.name) for c in self.__table__.columns}
 
 class UserAvailability(db.Model):
     __tablename__ = 'user_availability'
