@@ -7,7 +7,8 @@ import QuestionnaireScreen from '../components/QuestionnaireScreen';
 import AICoachScreen from '../components/AiCoachScreen';
 import ForumScreen from '../components/ForumScreen';
 import ThreadScreen from '../components/ThreadScreen';
-import  ResultScreen from '../components/ResultScreen';
+import ResultScreen from '../components/ResultScreen';
+import SchedulerScreen from '../components/SchedulerScreen';
 
 const Stack = createNativeStackNavigator();
 
@@ -34,8 +35,8 @@ const Index = () => {
         component={ResultScreen} 
       />
       {/* <Stack.Screen 
-        name="AICoachScreen" 
-        component={AICoachScreen} 
+        name="SchedulerScreen" 
+        component={SchedulerScreen} 
       /> */}
       <Stack.Screen 
         name="ForumScreen" 
