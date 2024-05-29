@@ -140,6 +140,55 @@ def create_questionnaire_data():
         return jsonify({"error": "Questionnaire ID, question text, answer, score, and order are required"}), 400
     
 
+# ... (existing code)
+
+# Coach routes
+@app.route('/api/coaches', methods=['GET'])
+def get_coaches():
+    coaches = Coach.query.all()
+    return jsonify([coach.to_dict() for coach in coaches])
+
+@app.route('/api/coaches/<int:coach_id>/availability', methods=['GET'])
+def get_coach_availability(coach_id):
+    coach = Coach.query.get(coach_id)
+    if coach:
+        availability = coach.coach_availability.all()
+        return jsonify([slot.to_dict() for slot in availability])
+    else:
+        return jsonify({"error": "Coach not found"}), 404
+
+@app.route('/api/appointments', methods=['POST'])
+def create_appointment():
+    data = request.get_json()
+    user_id = data.get('userId')
+    coach_id = data.get('coachId')
+    slot_id = data.get('slotId')
+
+    if user_id and coach_id and slot_id:
+        user = User.query.get(user_id)
+        coach = Coach.query.get(coach_id)
+        slot = CoachAvailability.query.get(slot_id)
+
+        print(f"User: {user}")
+        print(f"Coach: {coach}")
+        print(f"Slot: {slot}")
+
+        if user and coach and slot:
+            appointment = Appointment(
+                user_id=user_id,
+                coach_id=coach_id,
+                user_availability_id=None,  # You can handle user availability later
+                coach_availability_id=slot_id,
+                description=None  # You can add a description later
+            )
+            db.session.add(appointment)
+            db.session.commit()
+            return jsonify({"message": "Appointment created successfully"}), 201
+        else:
+            return jsonify({"error": "Invalid user, coach, or slot"}), 400
+    else:
+        return jsonify({"error": "User ID, coach ID, and slot ID are required"}), 400
+
 
 
 if __name__ == '__main__':
