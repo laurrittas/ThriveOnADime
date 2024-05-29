@@ -49,7 +49,21 @@ class Coach(db.Model):
 
     def __repr__(self):
         return f"<Coach {self.name}>"
+    
 
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'name': self.name,
+            'bio': self.bio,
+            'qualifications': self.qualifications,
+            'rating': self.rating,
+            'is_verified_adult': self.is_verified_adult,
+            'availability': self.availability,
+            'created_at': self.created_at,
+            'updated_at': self.updated_at
+
+        }
 class Questionnaire(db.Model):
     __tablename__ = 'questionnaires'
     id = db.Column(db.Integer, primary_key=True)
