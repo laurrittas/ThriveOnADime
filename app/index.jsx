@@ -34,10 +34,10 @@ const Index = () => {
         name="ResultScreen" 
         component={ResultScreen} 
       />
-      {/* <Stack.Screen 
+      <Stack.Screen 
         name="SchedulerScreen" 
         component={SchedulerScreen} 
-      /> */}
+      />
       <Stack.Screen 
         name="ForumScreen" 
         component={ForumScreen} 
