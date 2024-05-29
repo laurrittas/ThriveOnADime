@@ -1,11 +1,11 @@
 # seed.py
 from app import app
 from database import db
-from models import User, Coach, PlatformUsage, Questionnaire, QuestionnaireData, UserAvailability, CoachAvailability, Appointment
+from models import User, Coach, Questionnaire, QuestionnaireData, UserAvailability, CoachAvailability, Appointment
 
 def seed_users():
-    user1 = User(name='John Doe', email='john@example.com', password='password')
-    user2 = User(name='Jane Smith', email='jane@example.com', password='password')
+    user1 = User(name='John Doe', username='johndoe', email='john@example.com', password='password')
+    user2 = User(name='Jane Smith', username='janesmith', email='jane@example.com', password='password')
     db.session.add(user1)
     db.session.add(user2)
     db.session.commit()
