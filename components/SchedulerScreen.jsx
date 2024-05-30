@@ -31,22 +31,29 @@ const SchedulerScreen = () => {
 
   useEffect(() => {
     // Find matched slots between user and coach availability
-    const matchedSlots = userAvailability.filter(userSlot =>
-      coachAvailability.some(coachSlot =>
-        userSlot.startTime >= coachSlot.startTime &&
-        userSlot.endTime <= coachSlot.endTime
-      )
-    );
+    const matchedSlots = userAvailability.reduce((acc, userSlot) => {
+      const matchedCoachSlot = coachAvailability.find(
+        coachSlot =>
+          userSlot.startTime >= coachSlot.startTime &&
+          userSlot.endTime <= coachSlot.endTime
+      );
+      if (matchedCoachSlot) {
+        acc.push({
+          ...userSlot,
+          coachAvailabilityId: matchedCoachSlot.id,
+        });
+      }
+      return acc;
+    }, []);
     setMatchedSlots(matchedSlots);
   }, [userAvailability, coachAvailability]);
-
   const handleSlotSelection = (slot) => {
     // Book the selected slot for the user
     axios.post('/api/appointments', {
       userId: user.id,
       coachId: selectedCoach.id,
-      userAvailabilityId: slot.id,
-      coachAvailabilityId: coaches.id,
+      userAvailabilityId: slot.id, // Pass the selected slot's ID
+      coachAvailabilityId: slot.coachAvailabilityId, // Pass the corresponding coach availability slot's ID
     })
       .then(response => console.log(response.data))
       .catch(error => console.error(error));
