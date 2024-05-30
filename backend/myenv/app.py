@@ -3,6 +3,12 @@ from werkzeug.security import check_password_hash, generate_password_hash
 from database import db
 from models import User, Coach, Questionnaire, QuestionnaireData, UserAvailability, CoachAvailability, Appointment
 from flask_migrate import Migrate
+import requests
+from flask import request, jsonify
+import requests
+from anthropic import Anthropic
+
+
 
 app = Flask(__name__)
 app.config.from_object('config')
@@ -10,6 +16,22 @@ app.debug = True
 app.secret_key = 'your_secret_key'  # replace with your secret key
 migrate = Migrate(app, db)
 db.init_app(app)
+
+
+def get_claude_response(message):
+    client = Anthropic(api_key="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")
+    limited_history = [{"role": "user", "content": message}]
+    response = client.messages.create(
+        max_tokens=4096,
+        system="How can I improve my life?",
+        messages=limited_history,
+        model="claude-3-haiku-20240307",
+    )
+
+    # Access the response content and convert TextBlock to string
+    response_content = str(response.content)
+
+    return response_content
 
 # User routes
 @app.route('/api/users', methods=['GET'])
@@ -20,6 +42,39 @@ def get_users():
     else:
         return jsonify({"error": "No users found"}), 404
     
+
+@app.route('/api/chat', methods=['POST'])
+def handle_chat():
+    user_message = request.json.get('message')
+
+    if user_message:
+        try:
+            claude_response = get_claude_response(user_message)
+            return jsonify({"response": claude_response}), 200
+        except Exception as e:
+            return jsonify({"error": str(e)}), 500
+    else:
+        return jsonify({"error": "Message is required"}), 400
+
+
+# def get_claude_response(message):
+#     # Replace with the actual Claude API endpoint and authentication
+#     api_endpoint = "https://api.anthropic.com/v1/complete"
+#     headers = {
+#         "Authorization": "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",
+#         "Content-Type": "application/json"
+#     }
+#     data = {
+#         "prompt": message,
+#         # Add any other necessary parameters for the Claude API request
+#     }
+
+#     response = requests.post(api_endpoint, headers=headers, json=data)
+#     response.raise_for_status()  # Raise an exception if the request failed
+
+#     # Extract and return the Claude AI response from the API response
+#     return response.json()["result"]
+
 
 @app.route('/api/users/<int:user_id>/availability/<int:availability_id>', methods=['PUT'])
 def update_user_availability(user_id, availability_id):
