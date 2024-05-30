@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Alert } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import axios from 'axios';
+import { AsyncStorage } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
 
 const API_BASE_URL = 'http://localhost:5000/api'; // Replace with your backend URL
 
@@ -30,14 +32,26 @@ const UserHome = ({ navigation }) => {
     }
   };
 
-  const handleLogout = () => {
-    // Implement your logout logic here
-    // e.g., clear user data from AsyncStorage or context, navigate to the landing page
-  };
 
+  const handleLogout = async () => {
+    try {
+      // Clear user data from AsyncStorage
+      await AsyncStorage.removeItem('userData');
+  
+      // Use react-navigation's useNavigation hook to get the navigation object
+      const navigation = useNavigation();
+  
+      // Navigate to the landing page (replace 'LandingPage' with the name of your landing page)
+      navigation.reset({
+        index: 0,
+        routes: [{ name: 'LandingPage' }],
+      });
+    } catch (error) {
+      console.error('Failed to log out:', error);
+    }
+  };
   const handleSchedulePress = () => {
-    // Handle "Schedule with a coach" tab press
-    // You can navigate to a different screen or perform the desired action
+    navigation.navigate('ScheduleCoach'); // Navigate to the ScheduleCoach screen
   };
 
   const handleTalkPress = () => {
