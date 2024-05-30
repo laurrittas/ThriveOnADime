@@ -19,7 +19,7 @@ db.init_app(app)
 
 
 def get_claude_response(message):
-    client = Anthropic(api_key="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")
+    client = Anthropic(api_key="")
     limited_history = [{"role": "user", "content": message}]
     response = client.messages.create(
         max_tokens=4096,
