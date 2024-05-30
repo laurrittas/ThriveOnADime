@@ -11,6 +11,7 @@ import ResultScreen from '../components/ResultScreen';
 import SchedulerScreen from '../components/SchedulerScreen';
 import UserHome from '../components/UserHome';
 import TalkCoach from '../components/TalkCoach';
+import ScheduleCoach from '../components/ScheduleCoach';
 
 const Stack = createNativeStackNavigator();
 
@@ -41,8 +42,8 @@ const Index = () => {
         component={SchedulerScreen} 
       />
       <Stack.Screen 
-        name="ForumScreen" 
-        component={ForumScreen} 
+        name="ScheduleCoach" 
+        component={ScheduleCoach} 
       />
           <Stack.Screen 
         name="UserHome" 
