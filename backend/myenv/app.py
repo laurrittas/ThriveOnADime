@@ -18,7 +18,22 @@ migrate = Migrate(app, db)
 db.init_app(app)
 
 
-\
+def get_claude_response(message):
+    client = Anthropic(api_key="")
+    limited_history = [{"role": "user", "content": message}]
+    response = client.messages.create(
+        max_tokens=4096,
+        system="How can I improve my life?",
+        messages=limited_history,
+        model="claude-3-haiku-20240307",
+    )
+
+    # Access the response content and convert TextBlock to string
+    response_content = str(response.content)
+
+    return response_content
+
+
 # User routes
 @app.route('/api/users', methods=['GET'])
 def get_users():
