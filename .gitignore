@@ -18,3 +18,23 @@ web-build/
 
 expo-env.d.ts
 # @end expo-cli
+
+
+
+//secret key for chatox api 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
+
+
+def get_claude_response(message):
+    client = Anthropic(api_key="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")
+    limited_history = [{"role": "user", "content": message}]
+    response = client.messages.create(
+        max_tokens=4096,
+        system="How can I improve my life?",
+        messages=limited_history,
+        model="claude-3-haiku-20240307",
+    )
+
+    # Access the response content and convert TextBlock to string
+    response_content = str(response.content)
+
+    return response_content

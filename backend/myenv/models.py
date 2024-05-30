@@ -3,10 +3,13 @@ from database import db
 from sqlalchemy.orm import backref
 from datetime import datetime
 
+from werkzeug.security import generate_password_hash, check_password_hash
+
 class User(db.Model):
     __tablename__ = 'users'
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(100), nullable=False)
+    name = db.Column(db.String(100))
+    username = db.Column(db.String(100), unique=True, nullable=False)
     email = db.Column(db.String(120), unique=True, nullable=False)
     password = db.Column(db.String(100), nullable=False)
     is_verified_adult = db.Column(db.Boolean, default=False, nullable=False)
@@ -15,9 +18,23 @@ class User(db.Model):
     created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
 
-    def __repr__(self):
-        return f"<User {self.name}>"
+    def set_password(self, password):
+        self.password = generate_password_hash(password)
 
+    def check_password(self, password):
+        return check_password_hash(self.password, password)
+
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'name': self.name,
+            'username': self.username,
+            'email': self.email,
+            'is_verified_adult': self.is_verified_adult,
+            'coach_id': self.coach_id,
+            'created_at': self.created_at.isoformat(),
+            'updated_at': self.updated_at.isoformat()
+        }
 class Coach(db.Model):
     __tablename__ = 'coaches'
     id = db.Column(db.Integer, primary_key=True)
@@ -32,7 +49,21 @@ class Coach(db.Model):
 
     def __repr__(self):
         return f"<Coach {self.name}>"
+    
 
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'name': self.name,
+            'bio': self.bio,
+            'qualifications': self.qualifications,
+            'rating': self.rating,
+            'is_verified_adult': self.is_verified_adult,
+            'availability': self.availability,
+            'created_at': self.created_at,
+            'updated_at': self.updated_at
+
+        }
 class Questionnaire(db.Model):
     __tablename__ = 'questionnaires'
     id = db.Column(db.Integer, primary_key=True)
@@ -45,6 +76,14 @@ class Questionnaire(db.Model):
     def __repr__(self):
         return f"<Questionnaire {self.questionnaire_type}>"
 
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'user_id': self.user_id,
+            'questionnaire_type': self.questionnaire_type,
+            'created_at': self.created_at.isoformat(),
+            'updated_at': self.updated_at.isoformat()
+        }
 class QuestionnaireData(db.Model):
     __tablename__ = 'questionnaire_data'
     id = db.Column(db.Integer, primary_key=True)
@@ -52,12 +91,16 @@ class QuestionnaireData(db.Model):
     questionnaire = db.relationship('Questionnaire', backref=backref('questionnaire_data', lazy='dynamic'))
     question_text = db.Column(db.Text, nullable=False)
     answer = db.Column(db.Text, nullable=True)
+    score = db.Column(db.Integer, nullable=True)
     order = db.Column(db.Integer, nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
 
     def __repr__(self):
         return f"<QuestionnaireData {self.question_text[:20]}...>"
+    
+    def to_dict(self):
+        return {c.name: getattr(self, c.name) for c in self.__table__.columns}
 
 class UserAvailability(db.Model):
     __tablename__ = 'user_availability'
@@ -71,6 +114,16 @@ class UserAvailability(db.Model):
 
     def __repr__(self):
         return f"<UserAvailability {self.start_time} - {self.end_time}>"
+    
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'user_id': self.user_id,
+            'start_time': self.start_time.isoformat(),  # Convert datetime to string
+            'end_time': self.end_time.isoformat(),  # Convert datetime to string
+            'created_at': self.created_at.isoformat(),
+            'updated_at': self.updated_at.isoformat()
+        }
 
 class CoachAvailability(db.Model):
     __tablename__ = 'coach_availability'

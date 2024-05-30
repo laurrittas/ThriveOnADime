@@ -7,6 +7,11 @@ import QuestionnaireScreen from '../components/QuestionnaireScreen';
 import AICoachScreen from '../components/AiCoachScreen';
 import ForumScreen from '../components/ForumScreen';
 import ThreadScreen from '../components/ThreadScreen';
+import ResultScreen from '../components/ResultScreen';
+import SchedulerScreen from '../components/SchedulerScreen';
+import UserHome from '../components/UserHome';
+import TalkCoach from '../components/TalkCoach';
+import ScheduleCoach from '../components/ScheduleCoach';
 
 const Stack = createNativeStackNavigator();
 
@@ -28,21 +33,25 @@ const Index = () => {
         name="QuestionnaireScreen" 
         component={QuestionnaireScreen} 
       />
-      {/* <Stack.Screen 
+      <Stack.Screen 
         name="ResultScreen" 
         component={ResultScreen} 
-      /> */}
-      {/* <Stack.Screen 
-        name="AICoachScreen" 
-        component={AICoachScreen} 
-      /> */}
-      <Stack.Screen 
-        name="ForumScreen" 
-        component={ForumScreen} 
       />
       <Stack.Screen 
-        name="ThreadScreen" 
-        component={ThreadScreen} 
+        name="SchedulerScreen" 
+        component={SchedulerScreen} 
+      />
+      <Stack.Screen 
+        name="ScheduleCoach" 
+        component={ScheduleCoach} 
+      />
+          <Stack.Screen 
+        name="UserHome" 
+        component={UserHome} 
+      />
+      <Stack.Screen 
+        name="TalkCoach" 
+        component={TalkCoach} 
       />
     </Stack.Navigator>
   );
