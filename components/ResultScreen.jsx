@@ -4,7 +4,7 @@ import ConfettiCannon from 'react-native-confetti-cannon';
 
 const ResultScreen = ({ navigation }) => {
   const handleContinue = () => {
-    navigation.navigate('SchedulerScreen');
+    navigation.navigate('UserHome');
   };
 
   return (
