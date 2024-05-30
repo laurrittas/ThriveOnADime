@@ -114,6 +114,16 @@ class UserAvailability(db.Model):
 
     def __repr__(self):
         return f"<UserAvailability {self.start_time} - {self.end_time}>"
+    
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'user_id': self.user_id,
+            'start_time': self.start_time.isoformat(),  # Convert datetime to string
+            'end_time': self.end_time.isoformat(),  # Convert datetime to string
+            'created_at': self.created_at.isoformat(),
+            'updated_at': self.updated_at.isoformat()
+        }
 
 class CoachAvailability(db.Model):
     __tablename__ = 'coach_availability'
