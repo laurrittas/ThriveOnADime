@@ -19,12 +19,92 @@ def get_users():
         return jsonify([user.to_dict(rules=('-posts',)) for user in users]), 200
     else:
         return jsonify({"error": "No users found"}), 404
+    
+
+@app.route('/api/users/<int:user_id>/availability/<int:availability_id>', methods=['PUT'])
+def update_user_availability(user_id, availability_id):
+    user = User.query.get(user_id)
+    if user:
+        availability = UserAvailability.query.get(availability_id)
+        if availability:
+            data = request.get_json()
+            availability.start_time = data.get('startTime', availability.start_time)
+            availability.end_time = data.get('endTime', availability.end_time)
+            db.session.commit()
+            return jsonify(availability.to_dict()), 200
+        else:
+            return jsonify({"error": "Availability not found"}), 404
+    else:
+        return jsonify({"error": "User not found"}), 404
+    
+
+@app.route('/api/coaches/<int:coach_id>/availability', methods=['POST'])
+def create_coach_availability(coach_id):
+    coach = Coach.query.get(coach_id)
+    if coach:
+        data = request.get_json()
+        start_time = data.get('startTime')
+        end_time = data.get('endTime')
+
+        if start_time and end_time:
+            availability = CoachAvailability(
+                coach_id=coach_id,
+                start_time=start_time,
+                end_time=end_time
+            )
+            db.session.add(availability)
+            db.session.commit()
+            return jsonify(availability.to_dict()), 201
+        else:
+            return jsonify({"error": "Start time and end time are required"}), 400
+    else:
+        return jsonify({"error": "Coach not found"}), 404
+    
+
+@app.route('/api/coaches/<int:coach_id>/availability/<int:availability_id>', methods=['PUT'])
+def update_coach_availability(coach_id, availability_id):
+    coach = Coach.query.get(coach_id)
+    if coach:
+        availability = CoachAvailability.query.get(availability_id)
+        if availability:
+            data = request.get_json()
+            availability.start_time = data.get('startTime', availability.start_time)
+            availability.end_time = data.get('endTime', availability.end_time)
+            db.session.commit()
+            return jsonify(availability.to_dict()), 200
+        else:
+            return jsonify({"error": "Availability not found"}), 404
+    else:
+        return jsonify({"error": "Coach not found"}), 404
+
 
 @app.route('/api/user/<int:query_id>', methods=['GET'])
 def get_user(query_id):
     user = User.query.filter(User.id == query_id).first()
     if user:
         return jsonify(user.to_dict()), 200
+    else:
+        return jsonify({"error": "User not found"}), 404
+    
+@app.route('/api/users/<int:user_id>/availability', methods=['POST'])
+def create_user_availability(user_id):
+    user = User.query.get(user_id)
+    if user:
+        data = request.get_json()
+        start_time = data.get('startTime')
+        end_time = data.get('endTime')
+
+        if start_time and end_time:
+            availability = UserAvailability(
+                user_id=user_id,
+                start_time=start_time,
+                end_time=end_time
+            )
+            db.session.add(availability)
+            db.session.commit()
+            return jsonify(availability.to_dict()), 201
+        else:
+            return jsonify({"error": "Start time and end time are required"}), 400
     else:
         return jsonify({"error": "User not found"}), 404
 
@@ -47,6 +127,15 @@ def create_user():
             return jsonify(user.to_dict()), 201
     else:
         return jsonify({"error": "Username, email, and password are required"}), 400
+    
+@app.route('/api/users/<int:user_id>/availability', methods=['GET'])
+def get_user_availability(user_id):
+    user = User.query.get(user_id)
+    if user:
+        availability = user.user_availability.all()
+        return jsonify([slot.to_dict() for slot in availability])
+    else:
+        return jsonify({"error": "User not found"}), 404
 
 # Update
 @app.route('/api/user/<int:user_id>', methods=['PATCH'])
@@ -157,39 +246,38 @@ def get_coach_availability(coach_id):
     else:
         return jsonify({"error": "Coach not found"}), 404
 
+# app.py
+# ...
+
 @app.route('/api/appointments', methods=['POST'])
 def create_appointment():
     data = request.get_json()
     user_id = data.get('userId')
     coach_id = data.get('coachId')
-    slot_id = data.get('slotId')
+    user_availability_id = data.get('userAvailabilityId')
+    coach_availability_id = data.get('coachAvailabilityId')
 
-    if user_id and coach_id and slot_id:
+    if user_id and coach_id and user_availability_id and coach_availability_id:
         user = User.query.get(user_id)
         coach = Coach.query.get(coach_id)
-        slot = CoachAvailability.query.get(slot_id)
+        user_availability = UserAvailability.query.get(user_availability_id)
+        coach_availability = CoachAvailability.query.get(coach_availability_id)
 
-        print(f"User: {user}")
-        print(f"Coach: {coach}")
-        print(f"Slot: {slot}")
-
-        if user and coach and slot:
+        if user and coach and user_availability and coach_availability:
             appointment = Appointment(
                 user_id=user_id,
                 coach_id=coach_id,
-                user_availability_id=None,  # You can handle user availability later
-                coach_availability_id=slot_id,
+                user_availability_id=user_availability_id,
+                coach_availability_id=coach_availability_id,
                 description=None  # You can add a description later
             )
             db.session.add(appointment)
             db.session.commit()
             return jsonify({"message": "Appointment created successfully"}), 201
         else:
-            return jsonify({"error": "Invalid user, coach, or slot"}), 400
+            return jsonify({"error": "Invalid user, coach, or availability"}), 400
     else:
-        return jsonify({"error": "User ID, coach ID, and slot ID are required"}), 400
-
-
+        return jsonify({"error": "User ID, coach ID, and availability IDs are required"}), 400
 
 if __name__ == '__main__':
     with app.app_context():
