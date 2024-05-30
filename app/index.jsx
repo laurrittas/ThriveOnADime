@@ -9,6 +9,8 @@ import ForumScreen from '../components/ForumScreen';
 import ThreadScreen from '../components/ThreadScreen';
 import ResultScreen from '../components/ResultScreen';
 import SchedulerScreen from '../components/SchedulerScreen';
+import UserHome from '../components/UserHome';
+import TalkCoach from '../components/TalkCoach';
 
 const Stack = createNativeStackNavigator();
 
@@ -42,9 +44,13 @@ const Index = () => {
         name="ForumScreen" 
         component={ForumScreen} 
       />
+          <Stack.Screen 
+        name="UserHome" 
+        component={UserHome} 
+      />
       <Stack.Screen 
-        name="ThreadScreen" 
-        component={ThreadScreen} 
+        name="TalkCoach" 
+        component={TalkCoach} 
       />
     </Stack.Navigator>
   );
